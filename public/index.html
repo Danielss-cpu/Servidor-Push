@@ -15,7 +15,6 @@
     <section class="intro"><p class="eyebrow">LABORATORIO / WEB PUSH</p><h1>Un mensaje.<br>Todo el salón.</h1><p>Conecta tu computadora y recibe los avisos de tus compañeros, incluso cuando estés en otra pestaña.</p><div class="badge" id="connection">Sin conectar</div></section>
     <div class="panels">
       <section class="card"><p class="step">01 / CONÉCTATE</p><h2>Entra al salón</h2>
-        <label for="code">Código del salón</label><input id="code" type="password" autocomplete="off" placeholder="El código que compartió tu compañero" maxlength="128">
         <p class="hint">El navegador te pedirá permiso para mostrar notificaciones.</p>
         <div class="actions"><button id="subscribe" type="button">Activar notificaciones ↗</button><button id="unsubscribe" type="button" class="secondary" disabled>Desactivar</button></div>
         <p class="stat"><strong id="count">—</strong> computadoras suscritas <button id="refresh" class="text-button" type="button">Actualizar</button></p>
@@ -26,7 +25,7 @@
           <p class="hint">Hasta 300 caracteres · Máximo 5 envíos por minuto por conexión.</p><button id="send" type="submit">Enviar a todo el salón ↗</button>
         </form>
       </section>
-      <p id="status" role="status" aria-live="polite">Primero escribe el código del salón y activa las notificaciones.</p>
+      <p id="status" role="status" aria-live="polite">Activa las notificaciones para recibir los avisos del salón.</p>
     </div>
   </main>
   <footer>Node.js + Web Push + Service Worker <span>Abre esta misma dirección en las computadoras del salón.</span></footer>

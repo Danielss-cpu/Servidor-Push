@@ -5,11 +5,11 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-test('protege el salón, rechaza endpoints ajenos y difunde eliminando suscripciones vencidas', async t => {
+test('permite suscribirse y enviar sin código, valida endpoints y elimina suscripciones vencidas', async t => {
   const saved = new Map();
   const sent = [];
   const store = { all: () => [...saved.values()], put: s => saved.set(s.endpoint, s), remove: endpoint => saved.delete(endpoint) };
-  const app = createApp({ publicKey: 'public-test-key', classroomCode: 'salon-prueba', store, sendPush: async (subscription, payload) => {
+  const app = createApp({ publicKey: 'public-test-key', store, sendPush: async (subscription, payload) => {
     if (subscription.endpoint.endsWith('expired')) throw { statusCode: 410 };
     if (subscription.endpoint.endsWith('failure')) throw { statusCode: 503 };
     sent.push(JSON.parse(payload));
@@ -18,15 +18,14 @@ test('protege el salón, rechaza endpoints ajenos y difunde eliminando suscripci
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}`;
-  const request = (path, body, code = 'salon-prueba') => fetch(`${base}/api/${path}`, {
+  const request = (path, body) => fetch(`${base}/api/${path}`, {
     method: body === undefined ? 'GET' : 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Classroom-Code': code },
+    headers: { 'Content-Type': 'application/json' },
     ...(body === undefined ? {} : { body: JSON.stringify(body) })
   });
   assert.equal((await request('health')).status, 200);
   assert.equal((await request('config')).status, 200);
-  assert.equal((await request('stats', undefined, 'wrong')).status, 401);
-  assert.equal((await request('send', { name: 'Ana', message: 'Hola' }, '')).status, 401);
+  assert.equal((await request('stats')).status, 200);
   const subscription = suffix => ({ endpoint: `https://fcm.googleapis.com/fcm/send/${suffix}`, keys: { p256dh: 'A'.repeat(87), auth: 'B'.repeat(22) } });
   assert.equal((await request('subscribe', { ...subscription('a'), endpoint: 'https://localhost/internal' })).status, 400);
   for (const suffix of ['active', 'expired', 'failure', 'active']) assert.equal((await request('subscribe', subscription(suffix))).status, 201);
@@ -53,7 +52,7 @@ test('sirve rutas Angular, conserva errores de API y no reemplaza assets inexist
   const directory = mkdtempSync(join(tmpdir(), 'cielo-static-'));
   writeFileSync(join(directory, 'index.html'), '<html><title>Cielo</title></html>');
   writeFileSync(join(directory, 'ngsw-worker.js'), '// service worker');
-  const app = createApp({ publicKey: 'public', classroomCode: 'salon-prueba', store: { all: () => [] }, sendPush: async () => {}, staticDirectory: directory });
+  const app = createApp({ publicKey: 'public', store: { all: () => [] }, sendPush: async () => {}, staticDirectory: directory });
   const server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(async () => { await new Promise(resolve => server.close(resolve)); rmSync(directory, { recursive: true, force: true }); });
@@ -66,7 +65,7 @@ test('sirve rutas Angular, conserva errores de API y no reemplaza assets inexist
   const worker = await fetch(`${base}/ngsw-worker.js`);
   assert.match(worker.headers.get('cache-control'), /no-cache/);
   assert.equal((await fetch(`${base}/missing.js`)).status, 404);
-  const missing = await fetch(`${base}/api/unknown`, { headers: { 'X-Classroom-Code': 'salon-prueba' } });
+  const missing = await fetch(`${base}/api/unknown`);
   assert.equal(missing.status, 404);
   assert.equal((await missing.json()).error, 'Ruta de API no encontrada.');
 });

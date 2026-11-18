@@ -1,6 +1,6 @@
 # Servidor Web Push: referencia de la primera versión
 
-Servidor de práctica para que las computadoras de un salón se suscriban y cualquier participante con el código pueda enviar notificaciones a todos.
+Servidor de práctica para que las computadoras de un salón se suscriban y cualquier participante pueda enviar notificaciones a todos.
 
 ## Ejecutar en tu computadora
 
@@ -12,9 +12,9 @@ npm run setup
 npm start
 ```
 
-Abre http://localhost:3000 en Chrome, Edge o Firefox. Abre el archivo `.env` y copia el valor de `CLASSROOM_CODE` en la página. Pulsa **Activar notificaciones** y acepta el permiso. Escribe tu nombre y un mensaje, y pulsa **Enviar a todo el salón**.
+Abre http://localhost:3000 en Chrome, Edge o Firefox. Pulsa **Activar notificaciones** y acepta el permiso. Escribe tu nombre y un mensaje, y pulsa **Enviar a todo el salón**.
 
-Las claves se generan una sola vez. No borres `.env` ni cambies las claves mientras uses las suscripciones existentes. Nunca subas `.env` a GitHub ni compartas `VAPID_PRIVATE_KEY`. El código del salón sí se comparte con los participantes.
+Las claves se generan una sola vez. No borres `.env` ni cambies las claves mientras uses las suscripciones existentes. Nunca subas `.env` a GitHub ni compartas `VAPID_PRIVATE_KEY`.
 
 ## Publicar en Render para conectar al salón
 
@@ -28,12 +28,11 @@ Las claves se generan una sola vez. No borres `.env` ni cambies las claves mient
    | `VAPID_PUBLIC_KEY` | Tu clave pública generada |
    | `VAPID_PRIVATE_KEY` | Tu clave privada generada |
    | `VAPID_SUBJECT` | La URL HTTPS de tu servicio o un `mailto:` con tu correo real |
-   | `CLASSROOM_CODE` | El código compartido del salón, mínimo 8 caracteres |
    | `NODE_VERSION` | `22.16.0` |
 
 5. Pulsa **Deploy Web Service**. También puedes usar **New → Blueprint** con el `render.yaml` incluido e introducir las variables que solicite.
 6. Espera el estado **Live**. Abre `https://TU-SERVICIO.onrender.com/api/health`: debe devolver `{"status":"ok"}`.
-7. Comparte `https://TU-SERVICIO.onrender.com` y el código del salón. Cada compañero abre la página, introduce el código y activa notificaciones. Envía un mensaje y verifica su recepción en al menos dos computadoras.
+7. Comparte `https://TU-SERVICIO.onrender.com`. Cada compañero abre la página y activa notificaciones. Envía un mensaje y verifica su recepción en al menos dos computadoras.
 
 **Limitación de la práctica gratuita:** Render puede suspender el servicio tras 15 minutos sin tráfico; el siguiente acceso puede tardar aproximadamente un minuto. Al reiniciar, suspenderse o redesplegar, los archivos de suscripciones se pierden. Los participantes deben volver a pulsar **Activar notificaciones**, aunque el navegador ya tenga permiso. Las claves VAPID de las variables de entorno se conservan. Para uso permanente, usa una base de datos externa o un servicio con disco persistente y `DATA_DIR` apuntando al disco; esta versión está pensada para una sola instancia.
 
@@ -47,7 +46,7 @@ Si integras otro frontend, consulta primero `GET /api/config` para obtener `publ
 
 ## API
 
-Todos los endpoints salvo `/api/health` y `/api/config` requieren la cabecera `X-Classroom-Code`.
+Los endpoints se pueden usar sin código de acceso. Se mantienen los límites de solicitudes y de cinco envíos por minuto por conexión.
 
 | Método | Ruta | Cuerpo / respuesta |
 | --- | --- | --- |
@@ -66,7 +65,7 @@ Todos los endpoints salvo `/api/health` y `/api/config` requieren la cabecera `X
 npm test
 ```
 
-La prueba usa un proveedor simulado: verifica el código del salón, validación de suscripciones, difusión, errores de proveedor, limpieza de suscripciones vencidas y límite de envío. No sustituye la prueba real con dos navegadores o computadoras.
+La prueba usa un proveedor simulado: verifica el acceso sin código, validación de suscripciones, difusión, errores de proveedor, limpieza de suscripciones vencidas y límite de envío. No sustituye la prueba real con dos navegadores o computadoras.
 
 - **No aparece el permiso:** usa HTTPS en internet o localhost en tu computadora. Abrir `http://192.168.x.x:3000` desde otra computadora no satisface normalmente el requisito de contexto seguro.
 - **Permiso bloqueado:** abre los permisos del sitio junto a la dirección del navegador y permite notificaciones.

@@ -6,7 +6,7 @@ let registration;
 async function api(path, body) {
   const response = await fetch(`/api/${path}`, {
     method: body === undefined ? 'GET' : 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Classroom-Code': $('code').value.trim() },
+    headers: { 'Content-Type': 'application/json' },
     ...(body === undefined ? {} : { body: JSON.stringify(body) })
   });
   const data = await response.json().catch(() => ({}));
@@ -28,7 +28,6 @@ $('subscribe').addEventListener('click', async () => {
   $('subscribe').disabled = true;
   try {
     if (!supported) throw new Error('Abre la página en Chrome, Edge o Firefox usando HTTPS o localhost.');
-    if (!$('code').value.trim()) throw new Error('Escribe el código del salón.');
     // Solicitar permiso directamente desde el clic del usuario.
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') throw new Error('Permiso no concedido. Revisa los permisos de notificaciones junto a la dirección del sitio.');

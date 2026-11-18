@@ -16,7 +16,6 @@ export class Dashboard {
   readonly searchBusy = signal(false);
   readonly searchError = signal('');
   readonly searched = signal(false);
-  readonly code = signal('');
   private searchSequence = 0;
   readonly today = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   readonly hours = computed(() => {

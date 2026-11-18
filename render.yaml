@@ -15,5 +15,3 @@ services:
         sync: false
       - key: VAPID_SUBJECT
         sync: false
-      - key: CLASSROOM_CODE
-        sync: false

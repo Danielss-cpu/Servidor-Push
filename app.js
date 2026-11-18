@@ -1,6 +1,5 @@
 import express from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,7 +17,7 @@ export function validSubscription(value) {
   } catch { return false; }
 }
 
-export function createApp({ publicKey, classroomCode, store, sendPush, staticDirectory }) {
+export function createApp({ publicKey, store, sendPush, staticDirectory }) {
   const app = express();
   app.set('trust proxy', 1);
   app.use((_req, res, next) => {
@@ -31,14 +30,6 @@ export function createApp({ publicKey, classroomCode, store, sendPush, staticDir
   app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
   app.get('/api/config', (_req, res) => res.json({ publicKey }));
   app.use('/api', rateLimit({ windowMs: 60_000, limit: 60, standardHeaders: 'draft-8', legacyHeaders: false }));
-  app.use('/api', (req, res, next) => {
-    const expected = Buffer.from(classroomCode);
-    const received = Buffer.from(req.get('X-Classroom-Code') || '');
-    if (received.length !== expected.length || !timingSafeEqual(received, expected)) {
-      return res.status(401).json({ error: 'Código del salón incorrecto.' });
-    }
-    next();
-  });
   app.get('/api/stats', (_req, res) => res.json({ subscribers: store.all().length }));
   app.post('/api/subscribe', (req, res) => {
     if (!validSubscription(req.body)) return res.status(400).json({ error: 'Suscripción inválida o proveedor no admitido.' });

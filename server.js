@@ -4,10 +4,9 @@ import { resolve, join } from 'node:path';
 import webpush from 'web-push';
 import { createApp } from './app.js';
 
-for (const key of ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT', 'CLASSROOM_CODE']) {
+for (const key of ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT']) {
   if (!process.env[key]) throw new Error(`Falta ${key}. Ejecuta npm run setup o configura las variables en Render.`);
 }
-if (process.env.CLASSROOM_CODE.length < 8) throw new Error('CLASSROOM_CODE debe tener al menos 8 caracteres.');
 webpush.setVapidDetails(process.env.VAPID_SUBJECT, process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
 const directory = resolve(process.env.DATA_DIR || './data');
 mkdirSync(directory, { recursive: true });
@@ -26,7 +25,6 @@ const store = {
 const app = createApp({
   staticDirectory: existsSync(resolve('weather/dist/cielo/browser/index.html')) ? resolve('weather/dist/cielo/browser') : undefined,
   publicKey: process.env.VAPID_PUBLIC_KEY,
-  classroomCode: process.env.CLASSROOM_CODE,
   store,
   sendPush: (subscription, payload) => webpush.sendNotification(subscription, payload, { TTL: 3600, timeout: 10_000 })
 });

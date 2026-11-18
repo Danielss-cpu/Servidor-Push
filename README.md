@@ -14,7 +14,7 @@ npm start
 
 `npm ci` instala también las dependencias del frontend y compila Angular para producción. Abre http://localhost:3000. `npm run setup` conserva `.env` si ya existe. Para volver a compilar tras editar el frontend: `npm run build`.
 
-Las notificaciones necesitan el valor de `CLASSROOM_CODE` de `.env`. Ese código se comparte con los participantes. No compartas ni subas `.env` o `VAPID_PRIVATE_KEY`.
+Las notificaciones se activan con el permiso del navegador, sin código de acceso. Cualquier visitante puede suscribirse y enviar avisos, con un límite de cinco envíos por minuto por conexión. No compartas ni subas `.env` o `VAPID_PRIVATE_KEY`.
 
 Para desarrollo del frontend, desde `weather`: `npm start`. Este modo es para editar la interfaz; las pruebas completas de PWA y notificaciones se hacen sobre la compilación de producción servida por el backend, con HTTPS o localhost.
 
@@ -26,7 +26,7 @@ En el servicio existente:
 - Build Command: `npm ci`.
 - Start Command: `npm start`.
 - Node: `NODE_VERSION=22.16.0`.
-- Conservar las variables `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` y `CLASSROOM_CODE`.
+- Conservar las variables `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
 
 El script `postinstall` construye el frontend automáticamente. Express sirve los archivos de `weather/dist/cielo/browser` y la API desde `/api`. Las rutas `/clima` y `/acerca` funcionan al abrirlas directamente. Sin una compilación, el backend mantiene la página inicial de Salón Push como respaldo local.
 
