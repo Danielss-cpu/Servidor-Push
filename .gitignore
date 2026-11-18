@@ -2,3 +2,8 @@ node_modules/
 .env
 data/
 *.log
+tmp/
+weather/dist/
+weather/.angular/
+weather/test/.qa/
+weather/.vscode/

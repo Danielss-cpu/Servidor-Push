@@ -2,6 +2,8 @@ import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 const allowedPushHost = host => host === 'fcm.googleapis.com' ||
   host === 'updates.push.services.mozilla.com' || host.endsWith('.push.services.mozilla.com') ||
@@ -16,13 +18,13 @@ export function validSubscription(value) {
   } catch { return false; }
 }
 
-export function createApp({ publicKey, classroomCode, store, sendPush }) {
+export function createApp({ publicKey, classroomCode, store, sendPush, staticDirectory }) {
   const app = express();
   app.set('trust proxy', 1);
   app.use((_req, res, next) => {
     res.set('X-Content-Type-Options', 'nosniff');
     res.set('Referrer-Policy', 'no-referrer');
-    res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'");
+    res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; manifest-src 'self'");
     next();
   });
   app.use(express.json({ limit: '8kb' }));
@@ -57,7 +59,12 @@ export function createApp({ publicKey, classroomCode, store, sendPush }) {
       return res.status(400).json({ error: 'Escribe un nombre (hasta 40 caracteres) y un mensaje (hasta 300).' });
     }
     const subscriptions = store.all();
-    const payload = JSON.stringify({ title: `${name.trim()} · Salón Push`, body: message.trim(), url: '/' });
+    const title = `${name.trim()} · ${req.body.kind === 'weather' ? 'Cielo' : 'Salón Push'}`;
+    // Mantiene compatibilidad con el worker anterior y con el formato oficial de SwPush.
+    const payload = JSON.stringify({ title, body: message.trim(), url: '/', notification: {
+      title, body: message.trim(), icon: '/icons/icon-192x192.png',
+      data: { onActionClick: { default: { operation: 'focusLastFocusedOrOpen', url: '/' } } }
+    } });
     let accepted = 0, expired = 0, failed = 0;
     // Lotes pequeños para no abrir cientos de conexiones simultáneas.
     for (let i = 0; i < subscriptions.length; i += 10) {
@@ -71,9 +78,15 @@ export function createApp({ publicKey, classroomCode, store, sendPush }) {
     }
     res.json({ accepted, expired, failed, total: subscriptions.length });
   });
-  app.use(express.static(fileURLToPath(new URL('./public', import.meta.url)), { setHeaders(res, path) {
-    if (path.endsWith('sw.js')) res.set('Cache-Control', 'no-cache');
+  const directory = staticDirectory || fileURLToPath(new URL('./public', import.meta.url));
+  app.use('/api', (_req, res) => res.status(404).json({ error: 'Ruta de API no encontrada.' }));
+  app.use(express.static(directory, { setHeaders(res, path) {
+    if (/\.(?:html|json)$/.test(path) || path.endsWith('sw.js') || path.endsWith('ngsw-worker.js')) res.set('Cache-Control', 'no-cache');
   } }));
+  app.get('/{*path}', (req, res, next) => {
+    if (!req.accepts('html') || /\.[a-z0-9]+$/i.test(req.path) || !existsSync(join(directory, 'index.html'))) return next();
+    res.set('Cache-Control', 'no-cache').sendFile(join(directory, 'index.html'));
+  });
   app.use((error, _req, res, _next) => {
     const status = error.status >= 400 && error.status < 500 ? error.status : 500;
     console.error('Error de solicitud:', error.type || error.code || 'interno');

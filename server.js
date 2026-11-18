@@ -24,6 +24,7 @@ const store = {
   remove(endpoint) { subscriptions.delete(endpoint); persist(); }
 };
 const app = createApp({
+  staticDirectory: existsSync(resolve('weather/dist/cielo/browser/index.html')) ? resolve('weather/dist/cielo/browser') : undefined,
   publicKey: process.env.VAPID_PUBLIC_KEY,
   classroomCode: process.env.CLASSROOM_CODE,
   store,

@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "application",
+      "installMode": "prefetch",
+      "resources": { "files": ["/index.html", "/*.css", "/*.js", "/manifest.webmanifest", "/favicon.svg"] }
+    },
+    {
+      "name": "icons",
+      "installMode": "prefetch",
+      "resources": { "files": ["/icons/**"] }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "weather-forecast",
+      "urls": ["https://api.open-meteo.com/v1/forecast"],
+      "cacheConfig": { "strategy": "freshness", "maxSize": 30, "maxAge": "24h", "timeout": "4s" },
+      "cacheQueryOptions": { "ignoreSearch": false }
+    },
+    {
+      "name": "city-search",
+      "urls": ["https://geocoding-api.open-meteo.com/v1/search"],
+      "cacheConfig": { "strategy": "freshness", "maxSize": 30, "maxAge": "7d", "timeout": "4s" },
+      "cacheQueryOptions": { "ignoreSearch": false }
+    }
+  ]
+}

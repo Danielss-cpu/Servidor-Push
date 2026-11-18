@@ -1,0 +1,18 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a routerLink="/clima" class="brand"><span class="brand-mark">☀</span> cielo<span class="brand-dot">.</span></a>
+    <p class="brand-caption">TU VENTANA AL TIEMPO</p>
+    <nav aria-label="Navegación principal"><a routerLink="/clima" routerLinkActive="active"><span aria-hidden="true">◷</span> El tiempo</a><a routerLink="/acerca" routerLinkActive="active"><span aria-hidden="true">ⓘ</span> Acerca de Cielo</a></nav>
+    <div class="sidebar-note"><div class="tiny-sun" aria-hidden="true">✳</div><h2>El clima, contigo.</h2><p>Consulta tu último pronóstico incluso cuando te quedes sin conexión.</p>
+    @if (installPrompt()) { <button class="install-button" (click)="install()">Instalar aplicación</button> }
+    @else { <span class="install-hint">Puedes instalar Cielo desde el menú de tu navegador.</span> }
+    </div>
+    <div class="sidebar-bottom"><span class="connection-dot" [class.offline]="!weather.online()"></span>{{ weather.online() ? 'Con conexión' : 'Sin conexión' }}<span class="version">PWA / 01</span></div>
+  </aside>
+  <main class="main-content">
+    @if (updateReady()) { <div class="notice update-notice">Hay una versión nueva de Cielo. <button (click)="reload()">Actualizar aplicación</button></div> }
+    @if (!weather.online()) { <div class="notice" role="status">Estás sin conexión. Puedes consultar las ciudades que ya guardaste. Las búsquedas y los avisos necesitan internet.</div> }
+    <router-outlet />
+    <footer>Hecho para mirar hacia afuera. <span>Datos de <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></span></footer>
+  </main>
+</div>
