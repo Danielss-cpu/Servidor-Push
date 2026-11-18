@@ -12,11 +12,11 @@ npm run setup
 npm start
 ```
 
-`npm ci` instala también las dependencias del frontend y compila Angular para producción. Abre http://localhost:3000. `npm run setup` conserva `.env` si ya existe. Para volver a compilar tras editar el frontend: `npm run build`.
+Estos comandos ejecutan únicamente el servidor push y su página de prueba en http://localhost:3000. `npm run setup` conserva `.env` si ya existe. Angular se instala y compila de forma independiente dentro de `weather`: `npm ci --include=dev` y `npm run build`.
 
 Las notificaciones se activan con el permiso del navegador, sin código de acceso. Cualquier visitante puede suscribirse y enviar avisos, con un límite de cinco envíos por minuto por conexión. No compartas ni subas `.env` o `VAPID_PRIVATE_KEY`.
 
-Para desarrollo del frontend, desde `weather`: `npm start`. Este modo es para editar la interfaz; las pruebas completas de PWA y notificaciones se hacen sobre la compilación de producción servida por el backend, con HTTPS o localhost.
+Para desarrollo del frontend, desde `weather`: `npm start`. Las pruebas completas de PWA y notificaciones se hacen en el sitio estático de producción con HTTPS. El cliente utiliza la URL pública del backend definida en `weather/src/app/core/push.config.ts`.
 
 ## Render
 
@@ -28,7 +28,7 @@ En el servicio existente:
 - Node: `NODE_VERSION=22.16.0`.
 - Conservar las variables `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
 
-El script `postinstall` construye el frontend automáticamente. Express sirve los archivos de `weather/dist/cielo/browser` y la API desde `/api`. Las rutas `/clima` y `/acerca` funcionan al abrirlas directamente. Sin una compilación, el backend mantiene la página inicial de Salón Push como respaldo local.
+Express sirve únicamente la página de prueba de Salón Push y la API desde `/api`. Cielo se publica como un Static Site independiente con Root Directory `weather`, Build Command `npm ci --include=dev && npm run build` y Publish Directory `dist/cielo/browser`. En ese sitio se configura el rewrite `/*` a `/index.html` para las rutas de Angular. Consulta [la guía de los dos despliegues](docs/DESPLIEGUES.md).
 
 Los avisos del clima se envían manualmente a todos los suscriptores y describen la ciudad consultada. No hay monitoreo meteorológico automático ni cuentas de usuario. Los datos meteorológicos proceden de Open-Meteo, con atribución CC BY 4.0.
 

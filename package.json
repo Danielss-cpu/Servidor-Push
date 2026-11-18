@@ -7,7 +7,6 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "setup": "node scripts/setup.js",
-    "postinstall": "node scripts/build-weather.js --install",
     "build": "node scripts/build-weather.js",
     "test:weather": "node scripts/test-weather.js",
     "start": "node server.js",

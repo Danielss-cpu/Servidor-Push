@@ -16,7 +16,7 @@ Aplicación del clima desarrollada con Angular 21, componentes standalone, rutas
 | SwPush | `core/push.service.ts`: permiso, suscripción VAPID, registro HTTP POST y cancelación |
 | Servidor propio | Express, claves VAPID de entorno y endpoints `/api/subscribe`, `/api/unsubscribe`, `/api/send` |
 | Caso de negocio | Envío manual del clima de la ciudad consultada a todos los suscriptores del salón |
-| HTTPS y nube | Frontend y backend en el servicio de Render existente, mismo dominio |
+| HTTPS y nube | Frontend en un Static Site y servidor push en el Web Service de Render, con dominios diferentes y CORS |
 
 ## Demostración para entregar
 
@@ -31,7 +31,7 @@ Aplicación del clima desarrollada con Angular 21, componentes standalone, rutas
 9. Pulsar **Activar notificaciones** en dos navegadores o computadoras. Aceptar el permiso; revisar No molestar y permisos de Windows si hace falta.
 10. Pulsar **Enviar aviso del clima**. Ambos equipos deben recibir el título de la ciudad y su temperatura/condición. El resultado aceptado por el proveedor no prueba por sí solo la visualización en el sistema.
 11. Abrir directamente `/clima` y `/acerca` y recargar para comprobar las rutas públicas sin errores 404.
-12. Compartir la URL de la aplicación en b-learning. El backend está en la misma URL bajo `/api`; `/api/health` permite comprobarlo.
+12. Compartir los dos enlaces en b-learning: la URL pública del sitio estático y https://servidor-push-lfpa.onrender.com para el servidor push. Su endpoint `/api/health` permite comprobarlo.
 
 Las alertas son manuales, no hay vigilancia meteorológica periódica. Los participantes pueden activar suscripciones y difundir avisos sin código de acceso, con un límite de cinco envíos por minuto por conexión. Las notificaciones requieren conexión. Los pronósticos son estimaciones, y la aplicación muestra la fecha de los datos para distinguir una consulta guardada.
 
@@ -39,7 +39,7 @@ Las alertas son manuales, no hay vigilancia meteorológica periódica. Los parti
 
 Se conservan las variables `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` y `NODE_VERSION=22.16.0` ya configuradas. No subir `.env` al repositorio.
 
-Build command: `npm ci`. El script `postinstall` instala y compila Angular. Start command: `npm start`. También se puede compilar manualmente con `npm run build` después de instalar las dependencias. Se requieren Node 22.12 o superior de la rama 22, o Node 24 LTS.
+Servidor push: Build Command `npm ci`, Start Command `npm start`, Root Directory vacío. Sitio estático: Root Directory `weather`, Build Command `npm ci --include=dev && npm run build`, Publish Directory `dist/cielo/browser`. Configurar rewrite `/*` a `/index.html`. Se requieren Node 22.12 o superior de la rama 22, o Node 24 LTS. Ver `docs/DESPLIEGUES.md`.
 
 En Render gratuito las suscripciones guardadas en archivos se pierden al suspenderse/reiniciarse el servicio. Hay que pulsar nuevamente **Activar notificaciones**. Las ciudades guardadas en cada navegador son independientes de esos reinicios.
 

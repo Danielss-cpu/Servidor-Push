@@ -23,7 +23,6 @@ const store = {
   remove(endpoint) { subscriptions.delete(endpoint); persist(); }
 };
 const app = createApp({
-  staticDirectory: existsSync(resolve('weather/dist/cielo/browser/index.html')) ? resolve('weather/dist/cielo/browser') : undefined,
   publicKey: process.env.VAPID_PUBLIC_KEY,
   store,
   sendPush: (subscription, payload) => webpush.sendNotification(subscription, payload, { TTL: 3600, timeout: 10_000 })
