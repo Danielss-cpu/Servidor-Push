@@ -3,6 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
 import { firstValueFrom, timeout } from 'rxjs';
 import { WeatherSnapshot, condition } from './weather.models';
+import { PUSH_API_URL } from './push.config';
 
 interface PushResult { accepted: number; total: number; expired: number; failed: number; }
 
@@ -20,7 +21,7 @@ export class PushService {
   constructor() { this.push.subscription.subscribe(subscription => this.enabled.set(!!subscription)); }
 
   private async request<T>(path: string, body: unknown): Promise<T> {
-    return firstValueFrom(this.http.post<T>(`/api/${path}`, body).pipe(timeout(60000)));
+    return firstValueFrom(this.http.post<T>(`${PUSH_API_URL}/${path}`, body).pipe(timeout(60000)));
   }
   private report(error: unknown): void {
     this.failed.set(true);
@@ -36,7 +37,7 @@ export class PushService {
       if (!navigator.onLine) throw new Error('Conéctate a internet para activar las notificaciones.');
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') throw new Error('Permite las notificaciones en la configuración del sitio para continuar.');
-      const config = await firstValueFrom(this.http.get<{ publicKey: string }>('/api/config').pipe(timeout(15000)));
+      const config = await firstValueFrom(this.http.get<{ publicKey: string }>(`${PUSH_API_URL}/config`).pipe(timeout(60000)));
       const subscription = await this.push.requestSubscription({ serverPublicKey: config.publicKey });
       await this.request('subscribe', subscription.toJSON());
       this.registered.set(true);

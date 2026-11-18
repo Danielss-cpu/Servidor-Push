@@ -20,6 +20,15 @@ export function validSubscription(value) {
 export function createApp({ publicKey, store, sendPush, staticDirectory }) {
   const app = express();
   app.set('trust proxy', 1);
+  // API pública sin cookies: permite que la PWA viva en un dominio independiente.
+  app.use('/api', (req, res, next) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.set('Access-Control-Max-Age', '600');
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    next();
+  });
   app.use((_req, res, next) => {
     res.set('X-Content-Type-Options', 'nosniff');
     res.set('Referrer-Policy', 'no-referrer');

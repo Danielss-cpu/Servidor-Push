@@ -26,6 +26,17 @@ test('permite suscribirse y enviar sin código, valida endpoints y elimina suscr
   assert.equal((await request('health')).status, 200);
   assert.equal((await request('config')).status, 200);
   assert.equal((await request('stats')).status, 200);
+  const origin = 'https://cielo-ejemplo.onrender.com';
+  const preflight = await fetch(`${base}/api/subscribe`, { method: 'OPTIONS', headers: {
+    Origin: origin, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type'
+  } });
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get('access-control-allow-origin'), '*');
+  assert.match(preflight.headers.get('access-control-allow-methods'), /POST/);
+  assert.match(preflight.headers.get('access-control-allow-headers'), /Content-Type/i);
+  const crossOriginConfig = await fetch(`${base}/api/config`, { headers: { Origin: origin } });
+  assert.equal(crossOriginConfig.headers.get('access-control-allow-origin'), '*');
+  assert.equal((await crossOriginConfig.json()).publicKey, 'public-test-key');
   const subscription = suffix => ({ endpoint: `https://fcm.googleapis.com/fcm/send/${suffix}`, keys: { p256dh: 'A'.repeat(87), auth: 'B'.repeat(22) } });
   assert.equal((await request('subscribe', { ...subscription('a'), endpoint: 'https://localhost/internal' })).status, 400);
   for (const suffix of ['active', 'expired', 'failure', 'active']) assert.equal((await request('subscribe', subscription(suffix))).status, 201);
@@ -45,7 +56,9 @@ test('permite suscribirse y enviar sin código, valida endpoints y elimina suscr
   await request('send', { name: 'Orizaba', message: 'Orizaba: 20 °C, lluvia.', kind: 'weather' });
   assert.equal(sent.at(-1).notification.title, 'Orizaba · Cielo');
   for (let i = 0; i < 2; i++) await request('send', { name: 'Ana', message: 'Prueba' });
-  assert.equal((await request('send', { name: 'Ana', message: 'Límite' })).status, 429);
+  const limited = await request('send', { name: 'Ana', message: 'Límite' });
+  assert.equal(limited.status, 429);
+  assert.equal(limited.headers.get('access-control-allow-origin'), '*');
 });
 
 test('sirve rutas Angular, conserva errores de API y no reemplaza assets inexistentes por HTML', async t => {
