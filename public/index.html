@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#122c28">
+  <title>Salón Push</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header><a href="/" class="brand">↗ SALÓN PUSH</a><span>Una clase. Todos conectados.</span></header>
+  <main>
+    <section class="intro"><p class="eyebrow">LABORATORIO / WEB PUSH</p><h1>Un mensaje.<br>Todo el salón.</h1><p>Conecta tu computadora y recibe los avisos de tus compañeros, incluso cuando estés en otra pestaña.</p><div class="badge" id="connection">Sin conectar</div></section>
+    <div class="panels">
+      <section class="card"><p class="step">01 / CONÉCTATE</p><h2>Entra al salón</h2>
+        <label for="code">Código del salón</label><input id="code" type="password" autocomplete="off" placeholder="El código que compartió tu compañero" maxlength="128">
+        <p class="hint">El navegador te pedirá permiso para mostrar notificaciones.</p>
+        <div class="actions"><button id="subscribe" type="button">Activar notificaciones ↗</button><button id="unsubscribe" type="button" class="secondary" disabled>Desactivar</button></div>
+        <p class="stat"><strong id="count">—</strong> computadoras suscritas <button id="refresh" class="text-button" type="button">Actualizar</button></p>
+      </section>
+      <section class="card"><p class="step">02 / COMPARTE</p><h2>Envía un aviso</h2>
+        <form id="send-form"><label for="name">Tu nombre</label><input id="name" maxlength="40" required autocomplete="given-name" placeholder="¿Quién envía el mensaje?">
+          <label for="message">Mensaje para todos</label><textarea id="message" maxlength="300" rows="4" required placeholder="Hola, salón. ¡Esta es mi primera notificación push!"></textarea>
+          <p class="hint">Hasta 300 caracteres · Máximo 5 envíos por minuto por conexión.</p><button id="send" type="submit">Enviar a todo el salón ↗</button>
+        </form>
+      </section>
+      <p id="status" role="status" aria-live="polite">Primero escribe el código del salón y activa las notificaciones.</p>
+    </div>
+  </main>
+  <footer>Node.js + Web Push + Service Worker <span>Abre esta misma dirección en las computadoras del salón.</span></footer>
+</body>
+</html>
